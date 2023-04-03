@@ -141,7 +141,7 @@ namespace ssuds
 			/// index function to get the interger value of the iterators position
 			/// </summary>
 			/// <returns></returns> the position as an int
-			friend int index()
+			int index()
 			{
 				return mPosition;
 			}

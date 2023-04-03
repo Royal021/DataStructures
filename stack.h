@@ -42,6 +42,10 @@ namespace ssuds
 			os << dynamic_cast<const LinkedList<T>&>(S);
 			return os;
 		}
+
+		using LinkedList<T>::LinkedListIterator;
+		using LinkedList<T>::end;
+		using LinkedList<T>::begin;
 		
 	};
 }

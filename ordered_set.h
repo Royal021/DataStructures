@@ -24,11 +24,10 @@ namespace ssuds
 
 			~Node()
 			{
-				if (Node)
+				if (this)
 				{
-					DestroyRecursive(Node->mleft);
-					DestroyRecursive(Node->mright);
-					delete Node;
+					if (this->mLeft) {  delete this->mLeft; }
+					if (this->mRight) {  delete this->mRight; }
 				}
 			}
 
@@ -55,7 +54,9 @@ namespace ssuds
 					// The value is greater than us.  Tell
 					//  our right child to handle it
 					if (mRight)
+					{
 						mRight->insert_recursive(val);
+					}
 					else
 					{
 						mRight = new Node(val);
@@ -131,7 +132,7 @@ namespace ssuds
 
 		~OrderedSet()
 		{
-			mRoot = nullptr;
+			delete mRoot;
 			mSize = 0;
 		}
 
