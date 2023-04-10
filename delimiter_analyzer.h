@@ -1,25 +1,32 @@
 #pragma once
 #include <stack.h>
+#include <queue.h>
+#include <iostream>
+#include <fstream>
 
+/// <summary>
+/// a class for evaluating text docs like code
+/// </summary>
 class DelimiterAnalyzer
 {
 public:
-	enum class TokenType { PAREN, SQUARE, CURLY };
-	class Token
-	{
-	public:
-		TokenType type;
-		int line_num;
-		int char_pos;
-	};
-
-
+	/// <summary>
+	/// analyzer constructor
+	/// </summary>
+	/// <param name="fname"></param> a files name as a std::string
 	DelimiterAnalyzer(std::string fname);
-	void process();
+
+	/// <summary>
+	/// function that does all the work in analyzing the file
+	/// </summary>
+	/// <returns></returns> true or false, also sends out a message 
+	bool process();
+
 protected:
-	ssuds::Stack<Token> mTokenStack;
+	
+	/// <summary>
+	/// the file stored as a string
+	/// </summary>
+	std::string mFile;
 
-
-	bool is_opening(char c);
-	bool closing_matches(char c, TokenType opening_type);
 };

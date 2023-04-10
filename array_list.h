@@ -1,14 +1,33 @@
 #pragma once
-#include<string>
-#include <iostream>
-#include <stdexcept>
-#include <fstream>
-#include <initializer_list>
+#include <string>
 
+// Why the choice?  New/delete is generally preferred with C++, BUT...when we make an
+// array of T objects, we'd force the user to provide a default constructor using new/delete.  For this
+// reason, malloc/free might be a better choice here.  BUT...moves within an array (mData[1] = mData[2]) won't
+// always play nice with C++ constructs (like C++ strings) with a C-style array...SO, we must provide
+// a more ugly way of doing that (memcpy).
+// Ask if you don't remember doing this kind of thing (macros and macro functions) in ETEC2110.  
+// I can also provide you with a C++-only version of this
+// if that makes things a bit easier since the default-constructor issue is a not-super-importantant-to-
+// understanding-the-data-structure issue.
+#define MEMORY_ALLOCATOR 1				// 0 = new/delete 1 = malloc/free
 
-/// <summary>
-/// namespace of ssuds for shawnee state data structures
-/// </summary>
+#if MEMORY_ALLOCATOR == 1
+// C-style versions of the major memory operations
+#define MEMORY_ALLOC(n) (T*)malloc(sizeof(T) * (n)) 
+#define MEMORY_FREE(ptr) free(ptr);
+#define ITEM_MOVE(ptr, dest_pos, src_val) memcpy(ptr + dest_pos, &src_val, sizeof(T))
+#else
+// C++-style versions of the major memory operations
+#define MEMORY_ALLOC(n) new T[n]
+#define MEMORY_FREE(ptr) delete[] ptr;
+#define ITEM_MOVE(ptr, dest_pos, src_val) ptr[dest_pos] = src_val
+#endif
+
+// Note: in C++, a general tempate (like this one) must be defined inline
+// entirely in the .h file (no .cpp files).  So, in this lab, array_list.cpp
+// contents are moved here
+
 namespace ssuds
 {
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -20,9 +39,9 @@ namespace ssuds
 	template <class T>
 	class ArrayList
 	{
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @ NESTED CLASSES                         @
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @ NESTED CLASSES                         @
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	public:
 		class ArrayListIterator
 		{
@@ -61,9 +80,9 @@ namespace ssuds
 			}
 		};
 
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @ ATTRIBUTES                              @
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @ ATTRIBUTES                              @
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	protected:
 		/// The default (and minimum) capacity of an ArrayList
 		static const int msMinCapacity = 5;
@@ -78,59 +97,59 @@ namespace ssuds
 		T* mData;
 
 
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @ OPERATOR OVERLOADS                      @
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @ OPERATOR OVERLOADS                      @
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	public:
 
-		/// <summary>
-		/// Overloads the stream operator for ArrayLists.
-		/// </summary>
-		/// <param name="os">an ostream object (ofstream, stringstream, cout, etc.) </param>
-		/// <param name="alist">the ArrayList</param>
-		/// <returns>the (possibly modified) os that was given to us</returns>
-		friend std::ostream& operator <<(std::ostream& os, const ArrayList<T>& alist)
+	/// <summary>
+	/// Overloads the stream operator for ArrayLists.
+	/// </summary>
+	/// <param name="os">an ostream object (ofstream, stringstream, cout, etc.) </param>
+	/// <param name="alist">the ArrayList</param>
+	/// <returns>the (possibly modified) os that was given to us</returns>
+	friend std::ostream& operator <<(std::ostream& os, const ArrayList<T>& alist)
+	{
+		os << "[";
+		for (int i = 0; i < alist.size(); i++)
 		{
-			os << "[";
-			for (int i = 0; i < alist.size(); i++)
-			{
-				os << alist[i];
-				if (i < alist.size() - 1)
-					os << ", ";
-			}
-			os << "]";
-			return os;
+			os << alist[i];
+			if (i < alist.size() - 1)
+				os << ", ";
 		}
+		os << "]";
+		return os;
+	}
 
-		/// <summary>
-		/// Gets the data item at the given index.  This will throw an std::out_of_bounds exception if index is invalid (less than 0 or >= size)
-		/// </summary>
-		/// <param name="index">the index of the thing to return</param>
-		/// <returns>a reference to the value at the given index</returns>
-		T& operator[](int index) const
-		{
-			if (index >= mSize || index < 0)
-				throw std::out_of_range("Invalid index: " + std::to_string(index));
+	/// <summary>
+	/// Gets the data item at the given index.  This will throw an std::out_of_bounds exception if index is invalid (less than 0 or >= size)
+	/// </summary>
+	/// <param name="index">the index of the thing to return</param>
+	/// <returns>a reference to the value at the given index</returns>
+	T& operator[](int index) const
+	{
+		if (index >= mSize || index < 0)
+			throw std::out_of_range("Invalid index: " + std::to_string(index));
 
-			return mData[index];
-		}
-
-
-		ArrayList<T>& operator= (const ArrayList<T>& other)
-		{
-			clear();
-			mData = new T[other.mCapacity];
-			for (int i = 0; i < other.mSize; i++)
-				mData[i] = other[i];
-			mCapacity = other.mCapacity;
-			mSize = other.mSize;
-			return *this;
-		}
+		return mData[index];
+	}
 
 
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @ CONSTRUCTORS / DESTRUCTORS              @
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	ArrayList<T>& operator= (const ArrayList<T>& other)
+	{
+		clear();
+		mData = MEMORY_ALLOC(other.mCapacity);
+		for (int i = 0; i < other.mSize; i++)
+			ITEM_MOVE(mData, i, other[i]);
+		mCapacity = other.mCapacity;
+		mSize = other.mSize;
+		return *this;
+	}
+
+
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @ CONSTRUCTORS / DESTRUCTORS              @
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	public:
 		/// Default constructor
 		ArrayList() : mSize(0), mCapacity(0), mData(nullptr)
@@ -141,9 +160,9 @@ namespace ssuds
 		/// Copy-constructor
 		ArrayList(const ArrayList& other) : mCapacity(other.mCapacity), mSize(other.mSize)
 		{
-			mData = new T[mCapacity];
+			mData = MEMORY_ALLOC(mCapacity);
 			for (int i = 0; i < other.size(); i++)
-				mData[i] = other[i];
+				ITEM_MOVE(mData, i, other[i]);
 		}
 
 		/// Move-constructor: "steals" the data (shallow copy) from a soon-to-be-destroyed other ArrayList
@@ -157,24 +176,24 @@ namespace ssuds
 		/// Initializer-list constructor
 		ArrayList(std::initializer_list<T> ilist) : mCapacity((int)ilist.size()), mSize((int)ilist.size())
 		{
-			mData = new T[mCapacity];
+			mData = MEMORY_ALLOC(mCapacity);
 			int i = 0;
 			for (T val : ilist)
-				mData[i++] = val;
+				ITEM_MOVE(mData, i++, val);
 		}
 
 
 		/// Destructor
-		~ArrayList()
+		~ArrayList() 
 		{
 			if (mData)
-				delete[] mData;
+				MEMORY_FREE(mData);
 		}
 
 
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @ OTHER METHODS (alphabetical)            @
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @ OTHER METHODS (alphabetical)            @
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	public:
 		/// <summary>
 		///  Inserts a new element at the end of the array
@@ -186,7 +205,7 @@ namespace ssuds
 			grow();
 
 			// Stick our new element in the last slot and (sneakily) increase our size in the process
-			mData[mSize] = val;
+			ITEM_MOVE(mData, mSize, val);
 			mSize++;
 		}
 
@@ -203,7 +222,7 @@ namespace ssuds
 		void clear()
 		{
 			if (mData)
-				delete[] mData;
+				MEMORY_FREE(mData);
 			mData = nullptr;
 			mSize = 0;
 			mCapacity = 0;
@@ -235,7 +254,7 @@ namespace ssuds
 			return -1;
 		}
 
-
+	
 
 		/// <summary>
 		/// Inserts a new data item at a given index
@@ -252,10 +271,10 @@ namespace ssuds
 
 			// Move all the elements that come *after* index up one spot
 			for (int i = mSize; i > index; i--)
-				mData[i] = mData[i - 1];
+				ITEM_MOVE(mData, i, mData[i - 1]);
 
 			// Put our new elements in spot index and increase our size
-			mData[index] = val;
+			ITEM_MOVE(mData, index, val);
 			mSize++;
 		}
 
@@ -275,7 +294,7 @@ namespace ssuds
 
 			// Move all elements that come after index down one spot
 			for (int i = index; i < mSize - 1; i++)
-				mData[i] = mData[i + 1];
+				ITEM_MOVE(mData, i, mData[i + 1]);
 
 			// Decrement our size
 			mSize--;
@@ -294,7 +313,7 @@ namespace ssuds
 		/// <param name="val">the value to remove</param>
 		/// <param name="resize_if_necessary">if true, the array will be resized if it is now below half capacity</param>
 		/// <returns>the number of occurrences of that data item that were removed</returns>
-		int remove_all(const T val, bool resize_if_necessary = true)
+		int remove_all(const T val, bool resize_if_necessary=true)
 		{
 			int cur_index = 0;
 			int num_removed = 0;
@@ -325,14 +344,6 @@ namespace ssuds
 			return mSize;
 		}
 
-		/// <summary>
-		/// returns the capacity of the internal array at given time
-		/// </summary>
-		/// <returns>int size of the array</returns>
-		int cap() const
-		{
-			return mCapacity;
-		}
 
 	protected:
 		/// <summary>
@@ -345,18 +356,18 @@ namespace ssuds
 				// Allocate what will become the new array
 				T* new_array = nullptr;
 				if (mCapacity == 0)
-					new_array = new T[msMinCapacity];
+					new_array = MEMORY_ALLOC(msMinCapacity);
 				else
-					new_array = new T[mCapacity * 2];
+					new_array = MEMORY_ALLOC(mCapacity * 2);
 
 				// Copy over data from the old array (if any)
 				if (mData != nullptr)
 				{
 					for (int i = 0; i < mSize; i++)
-						new_array[i] = mData[i];
+						ITEM_MOVE(new_array, i, mData[i]);
 
 					// Destroy the old array
-					delete[] mData;
+					MEMORY_FREE(mData);
 				}
 
 				// Make the new array *the* array
@@ -379,15 +390,15 @@ namespace ssuds
 			if (mSize < mCapacity / 2 && mCapacity >= msMinCapacity * 2)
 			{
 				// Allocate what will become the new array
-				T* new_array = new T[mCapacity / 2];
+				T* new_array = MEMORY_ALLOC(mCapacity / 2);
 
 				// Copy over data from the old array (if any)
 				for (int i = 0; i < mSize; i++)
-					new_array[i] = mData[i];
-
+					ITEM_MOVE(new_array, i, mData[i]);
+			
 
 				// Destroy the old array
-				delete[] mData;
+				MEMORY_FREE(mData);
 
 				// Make the new array *the* array
 				mData = new_array;
@@ -397,68 +408,4 @@ namespace ssuds
 			}
 		}
 	};
-
-
-
-
-
-	/// <summary>
-	/// This is a data class Foo, it holds an int value and a string name
-	/// </summary>
-	class Foo
-	{
-	protected:
-		/// <summary>
-		/// value of the Foo member
-		/// </summary>
-		int value;
-		/// <summary>
-		/// name of the Foo member
-		/// </summary>
-		std::string name;
-
-	public:
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		Foo() { value = 0; name = ""; }
-
-		/// <summary>
-		/// A getter for value
-		/// </summary>
-		/// <returns></returns>
-		int get_value() const { return value; }
-
-		/// <summary>
-		/// a getter for name
-		/// </summary>
-		/// <returns></returns>
-		std::string get_name() const { return name; }
-
-		/// <summary>
-		/// A method to set the value of the foo member
-		/// </summary>
-		/// <param name="v"></param>
-		void set_value(int v) { value = v; }
-
-		/// <summary>
-		/// A method to set te name of the foo member
-		/// </summary>
-		/// <param name="n"></param>
-		void set_name(std::string n) { name = n; }
-
-		/// <summary>
-		/// stream overload for the foo member so it prints right
-		/// </summary>
-		/// <param name="os"></param>
-		/// <param name="f"></param>
-		/// <returns></returns>
-		friend std::ostream& operator<< (std::ostream& os, const Foo& f)
-		{
-			os << "{The Foo:" << f.name << " is number" << f.value << "}";
-			return os;
-		}
-
-	};
 }
-

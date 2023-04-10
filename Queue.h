@@ -28,14 +28,15 @@ namespace ssuds
 		/// <summary>
 		/// a removal of the 'head' value of the queue
 		/// </summary>
-		void dequeue()
+		T dequeue()
 		{
 			if (mInternalList.size() == 0)
 			{
 				throw std::out_of_range("The queue is empty");
 			}
-			this->head();
+			T item = this->head();
 			mInternalList.removeByIndex(0);
+			return item;
 		}
 
 		/// <summary>

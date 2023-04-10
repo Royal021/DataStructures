@@ -8,33 +8,13 @@
 #include <stack.h>   
 #include <queue.h>
 #include <ordered_set.h>
+#include <delimiter_analyzer.h>
 #include <gtest\gtest.h>
 
 int main(int argc, char** argv)
 {
-    
-    //std::cout << c.removeByIndex(2) << std::endl;
-    //std::cout << c << std::endl;
-    
-    ssuds::Stack<int> a;
-    a.push(1);
-    a.push(2);
-    a.push(3);
-    a.push(5);
-    a.push(7);
-    a.push(11);
-    std::cout << a << std::endl;
-    a.pop();
-    a.pop();
-    std::cout << a << std::endl;
-    a.clearall();
-    std::cout << a << std::endl;
-    if (a.empty() == 1) {
-        std::cout << "yeet" << std::endl;
-    }
-
+ 
     ssuds::OrderedSet<float> fset;
-    fset.traversal(ssuds::traversalType::PRE);
     bool added = fset.insert(4.4f);
     added = fset.insert(1.1f);		// added is true
     added = fset.insert(2.3f);			// added is true
@@ -44,11 +24,35 @@ int main(int argc, char** argv)
     added = fset.insert(6.3f);
     added = fset.insert(3.3f);
     added = fset.insert(1.3f);
-    fset.traversal(ssuds::traversalType::PRE);
-    std::cout << "lllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll" << std::endl;
-    fset.traversal(ssuds::traversalType::POST);
-    std::cout << "lllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll" << std::endl;
-    fset.traversal(ssuds::traversalType::IN);
+    added = fset.insert(0.3f);
+    added = fset.insert(1.4f);
+    
+ 
+    std::cout << fset.traversal(ssuds::traversalType::PRE) << std::endl;
+    std::cout << fset.traversal(ssuds::traversalType::POST) << std::endl;
+    std::cout << fset.traversal(ssuds::traversalType::IN) << std::endl;
+  
+   ssuds::OrderedSet<float> Fset;
+   bool added1 = Fset.insert(4.4f);
+   added1 = Fset.insert(1.1f);		// added is true
+   added1 = Fset.insert(2.3f);			// added is true
+   added1 = Fset.insert(4.3f);
+   added1 = Fset.insert(5.3f);
+   added1 = Fset.insert(6.3f);
+   added1 = Fset.insert(3.3f);
+   added1 = Fset.insert(1.3f);
+   
+   
+   std::cout << Fset.traversal(ssuds::traversalType::PRE) << "yay" << std::endl;
+   
+
+   ssuds::OrderedSet<float>::OrderedSetIterator it = Fset.begin();
+   while (it != Fset.end())
+   {
+       std::cout << *it << "\n";
+       ++it;
+   }
+    /// hash ("bob) % mcap
     testing::InitGoogleTest();
     RUN_ALL_TESTS();  
 
