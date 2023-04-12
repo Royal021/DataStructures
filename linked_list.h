@@ -506,6 +506,7 @@ namespace ssuds
 			}
 			return *this;
 		}
+
 		/// <summary>
 		/// a clear helper function for the linked list class, works like destructor but keeps the list
 		/// </summary>

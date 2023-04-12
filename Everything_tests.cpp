@@ -578,4 +578,187 @@ TEST_F(SetTestFixture, removeALot)
 	EXPECT_EQ(ss_captured_string, "[6.3, 2.3, 1.3, 4.3]");
 }
 
+TEST_F(SetTestFixture, Intersection)
+{
+	ssuds::OrderedSet<float> fset;
+	bool added = fset.insert(4.4f);
+	added = fset.insert(1.1f);		
+	added = fset.insert(2.3f);			
+	added = fset.insert(4.3f);
+	added = fset.insert(5.3f);
+	added = fset.insert(6.3f);
+	added = fset.insert(3.3f);
+	added = fset.insert(1.3f);
+	added = fset.insert(0.3f);			//diff
+	added = fset.insert(1.4f);			//diff
+
+
+	ssuds::OrderedSet<float> Fset;
+	bool added1 = Fset.insert(4.4f);
+	added1 = Fset.insert(1.1f);		
+	added1 = Fset.insert(2.3f);			
+	added1 = Fset.insert(4.3f);
+	added1 = Fset.insert(5.3f);
+	added1 = Fset.insert(6.3f);
+	added1 = Fset.insert(3.3f);
+	added1 = Fset.insert(1.3f);
+	added1 = Fset.insert(61.3f);		//diff
+
+	ssuds::ArrayList<float> Inti = Fset.Intersection(fset);
+
+	std::stringstream ss;
+	ss.str("");
+	ss << Inti;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "[1.1, 1.3, 2.3, 3.3, 4.3, 4.4, 5.3, 6.3]");
+}
+
+TEST_F(SetTestFixture, Union)
+{
+	ssuds::OrderedSet<float> fset;
+	bool added = fset.insert(4.4f);
+	added = fset.insert(1.1f);
+	added = fset.insert(2.3f);
+	added = fset.insert(4.3f);
+	added = fset.insert(5.3f);
+	added = fset.insert(6.3f);
+	added = fset.insert(3.3f);
+	added = fset.insert(1.3f);
+	added = fset.insert(0.3f);			//diff
+	added = fset.insert(1.4f);			//diff
+
+
+	ssuds::OrderedSet<float> Fset;
+	bool added1 = Fset.insert(4.4f);
+	added1 = Fset.insert(1.1f);
+	added1 = Fset.insert(2.3f);
+	added1 = Fset.insert(4.3f);
+	added1 = Fset.insert(5.3f);
+	added1 = Fset.insert(6.3f);
+	added1 = Fset.insert(3.3f);
+	added1 = Fset.insert(1.3f);
+	added1 = Fset.insert(61.3f);		//diff
+
+	ssuds::ArrayList<float> Uni = Fset.Union(fset);
+
+	std::stringstream ss;
+	ss.str("");
+	ss << Uni;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "[0.3, 1.1, 1.3, 1.4, 2.3, 3.3, 4.3, 4.4, 5.3, 6.3, 61.3]");
+}
+
+TEST_F(SetTestFixture, RelativeDifference)
+{
+	ssuds::OrderedSet<float> fset;
+	bool added = fset.insert(4.4f);
+	added = fset.insert(1.1f);
+	added = fset.insert(2.3f);
+	added = fset.insert(4.3f);
+	added = fset.insert(5.3f);
+	added = fset.insert(6.3f);
+	added = fset.insert(3.3f);
+	added = fset.insert(1.3f);
+	added = fset.insert(0.3f);			//diff
+	added = fset.insert(1.4f);			//diff
+
+
+	ssuds::OrderedSet<float> Fset;
+	bool added1 = Fset.insert(4.4f);
+	added1 = Fset.insert(1.1f);
+	added1 = Fset.insert(2.3f);
+	added1 = Fset.insert(4.3f);
+	added1 = Fset.insert(5.3f);
+	added1 = Fset.insert(6.3f);
+	added1 = Fset.insert(3.3f);
+	added1 = Fset.insert(1.3f);
+	added1 = Fset.insert(61.3f);		//diff
+
+	ssuds::ArrayList<float> rdf = Fset.RelativeDifference(fset);
+
+	std::stringstream ss;
+	ss.str("");
+	ss << rdf;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "[1.4, 0.3]");
+}
+
+TEST_F(SetTestFixture, TreeString)
+{
+	std::string tstring = Fset.tree_string();
+	std::stringstream ss;
+	ss.str("");
+	ss << tstring;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "4.400000\n   L:1.100000\n      R:2.300000\n         L:1.300000\n         R:4.300000\n            L:3.300000\n   R:5.300000\n      R:6.300000");
+}
+
+
+TEST_F(SetTestFixture, Iterator)
+{
+	std::stringstream ss;
+	ss.str("");
+	
+	ssuds::OrderedSet<float>::OrderedSetIterator it = Fset.begin();
+	while (it != Fset.end())
+	{
+		ss << *it << ' ';
+		++it;
+	}
+	
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "1.1 1.3 2.3 3.3 4.3 4.4 5.3 6.3 ");
+}
+
+TEST_F(SetTestFixture, copyConstruct)
+{
+	ssuds::OrderedSet<std::string> OSS = Sset;
+	ssuds::ArrayList<std::string> SsetAR = Sset.traversal(ssuds::traversalType::PRE);
+	ssuds::ArrayList<std::string> OSSAR = OSS.traversal(ssuds::traversalType::PRE);
+	for (int i = 0; i < OSSAR.size(); i++)
+	{
+		ASSERT_EQ(OSSAR[i], SsetAR[i]);
+	}
+	OSS.insert("fools");
+	ssuds::ArrayList<std::string> OSSAR2 = OSS.traversal(ssuds::traversalType::PRE);
+	ssuds::ArrayList<std::string> SsetAR2 = Sset.traversal(ssuds::traversalType::PRE);
+	ASSERT_EQ(OSS.size(), 7);
+	ASSERT_EQ(Sset.size(), 6);
+}
+
+TEST_F(SetTestFixture, InitializerListConstructor)
+{
+	ssuds::OrderedSet<int> testSet{ 5, 8, 9, 3, 1, 2, 7, 0 };
+	ASSERT_EQ(testSet.size(), 8);
+	ssuds::ArrayList<int> test = testSet.traversal(ssuds::traversalType::PRE);
+	EXPECT_EQ(test[0], 5);
+	EXPECT_EQ(test[1], 3);
+	EXPECT_EQ(test[2], 1);
+	EXPECT_EQ(test[3], 0);
+	EXPECT_EQ(test[4], 2);
+	EXPECT_EQ(test[5], 8);
+	EXPECT_EQ(test[6], 7);
+	EXPECT_EQ(test[7], 9);
+}
+
+ssuds::OrderedSet<float> move_func()
+{
+	ssuds::OrderedSet<float> result;
+	result.insert(3.1f);
+	result.insert(4.2f);
+	result.insert(1.3f);
+	result.insert(0.3f);
+	return result;
+}
+
+TEST_F(SetTestFixture, MoveConstructor)
+{
+	ssuds::OrderedSet<float> my_set = move_func();
+	ASSERT_EQ(my_set.size(), 4);
+	ssuds::ArrayList<float> my_arr = my_set.traversal(ssuds::traversalType::PRE);
+	EXPECT_EQ(my_arr[0], 3.1f);
+	EXPECT_EQ(my_arr[1], 1.3f);
+	EXPECT_EQ(my_arr[3], 4.2f);
+	EXPECT_EQ(my_arr[2], 0.3f);
+}
 #endif
