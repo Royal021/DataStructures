@@ -9,35 +9,32 @@
 #include <queue.h>
 #include <ordered_set.h>
 #include <delimiter_analyzer.h>
+#include <unordered_map.h>
 #include <gtest\gtest.h>
+#include <FrequencyMap.h>
+#include <graphs.h>
 
+//I threw some readable checks in this main, the tests do everything as well.
 int main(int argc, char** argv)
 {
-   // I had these here so it was easier to see they worked, there are google tests for them as well
-   ssuds::OrderedSet<float> Fset;
-   bool added1 = Fset.insert(4.4f);
-   added1 = Fset.insert(1.1f);		
-   added1 = Fset.insert(2.3f);			
-   added1 = Fset.insert(4.3f);
-   added1 = Fset.insert(5.3f);
-   added1 = Fset.insert(6.3f);
-   added1 = Fset.insert(3.3f);
-   added1 = Fset.insert(1.3f);
-   added1 = Fset.insert(61.3f);
+    ssuds::Graph<int, float> g;
+    g.add_node(6);
+    g.add_node(2);
+    g.add_node(4);
+    g.add_node(1);
+    g.add_edge(3.3f, 1, 2);
+    g.add_edge(3.1f, 1, 4);
+    g.add_edge(1.1f, 6, 2);
+    g.add_edge(3.5f, 6, 4);
+    g.add_edge(234.1f, 1, 2);
+   
+    
+    std::cout << "this is the og graph"<<std::endl<<  g << std::endl;
+    g.remove_node(1);
+    std::cout << "this is removed 1 node" << std::endl << g << std::endl;
+    g.remove_edge(6, 4);
+    std::cout << "this is removed 6 and 4 edge" << std::endl << g << std::endl;
 
-
-   ssuds::OrderedSet<float>::OrderedSetIterator it = Fset.begin();
-   while (it != Fset.end())
-   {
-       std::cout << *it << "\n";
-       ++it;
-   }
-    /// hash ("bob) % mcap
-
-
-   std::string tstring = Fset.tree_string();
-   std::cout << tstring << std::endl;
     testing::InitGoogleTest();
     RUN_ALL_TESTS();  
-
 }

@@ -4,11 +4,15 @@
 #include <stack.h>
 #include <queue.h>
 #include <ordered_set.h>
+#include <unordered_map.h>
+#include <graphs.h>
 
 #define EXECUTE_LINKED_LIST_TESTS 0
 #define EXECUTE_STACK_TESTS 0
 #define EXECUTE_QUEUE_TESTS 0
-#define EXECUTE_SET_TESTS 1
+#define EXECUTE_SET_TESTS 0
+#define EXECUTE_MAP_TESTS 1
+#define EXECUTE_GRAPH_TESTS 0
 #if EXECUTE_LINKED_LIST_TESTS
 
 class LinkedListTestFixture : public ::testing::Test
@@ -431,7 +435,6 @@ TEST_F(QueueTestFixture, Iterator)
 }
 #endif
 
-
 #if EXECUTE_SET_TESTS
 class SetTestFixture : public ::testing::Test
 {
@@ -760,5 +763,243 @@ TEST_F(SetTestFixture, MoveConstructor)
 	EXPECT_EQ(my_arr[1], 1.3f);
 	EXPECT_EQ(my_arr[3], 4.2f);
 	EXPECT_EQ(my_arr[2], 0.3f);
+}
+#endif
+
+#if EXECUTE_MAP_TESTS
+class MapTestFixture : public ::testing::Test
+{
+protected:
+	void SetUp() override
+	{
+		mappy[2] = 6.9f;
+		mappy[3];
+		mappy[4];
+		mappy[6] = 7.7f;
+		mappy[22] = 1.2f;
+		mappy[864] = 6.2f;
+		mappy[93] = 234.2f;
+		mappy[122] = 12.2f;
+		mappy[95] = 234.2f;
+		mappy[9] = 22.01f;
+		mappy[152] = 12.2f;
+		mappy[1] = 5.3f;
+	}
+
+	void TearDown() override
+	{
+
+	}
+
+
+	ssuds::UnorderedMap<int, float> mappy;
+};
+
+TEST_F(MapTestFixture, containsTrue)
+{
+	EXPECT_TRUE(mappy.contains(9));
+	EXPECT_TRUE(mappy.contains(1));
+	EXPECT_TRUE(mappy.contains(3));
+	EXPECT_TRUE(mappy.contains(152));
+}
+
+
+TEST_F(MapTestFixture, containsFalse)
+{
+	EXPECT_FALSE(mappy.contains(99));
+	EXPECT_FALSE(mappy.contains(27));
+	EXPECT_FALSE(mappy.contains(16));
+}
+
+TEST_F(MapTestFixture, eraseValue)
+{
+	EXPECT_TRUE(mappy.remove(9));
+	EXPECT_TRUE(mappy.remove(1));
+	EXPECT_TRUE(mappy.remove(3));
+	EXPECT_TRUE(mappy.remove(152));
+	EXPECT_FALSE(mappy.contains(9));
+	EXPECT_FALSE(mappy.contains(1));
+	EXPECT_FALSE(mappy.contains(3));
+	EXPECT_FALSE(mappy.contains(152));
+	std::stringstream ss;
+	ss.str("");
+	ss << mappy;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "{ 122:12.2,  4:0,  2:6.9,  864:6.2,  22:1.2,  93:234.2,  6:7.7,  95:234.2 }");
+}
+
+TEST_F(MapTestFixture, Iterator)
+{
+	std::stringstream ss;
+	ss.str("");
+	ssuds::UnorderedMap<int, float>::UnorderedMapIterator it = mappy.begin();
+	ssuds::UnorderedMap<int, float>::UnorderedMapIterator it_end = mappy.end();
+	while (it != it_end)
+	{
+		ss << *it << ' ';
+		++it;
+	}
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "3 122 9 4 2 864 22 93 152 6 1 95 ");
+}
+
+TEST_F(MapTestFixture, changing_a_empty_value)
+{
+	std::stringstream ss;
+	ss.str("");
+	ssuds::UnorderedMap<int, float> mappy;
+	mappy[1];
+	mappy[1] = 3.3f;
+	mappy[2] = 6.9f;
+	mappy[3];
+	ss << mappy;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "{ 3:0,  1:3.3,  2:6.9 }");
+}
+
+TEST_F(MapTestFixture, changing_a_value)
+{
+	std::stringstream ss;
+	ss.str("");
+	ssuds::UnorderedMap<int, float> mappy;
+	mappy[1] = 2.5f;
+	mappy[1] = 3.3f;
+	mappy[2] = 6.9f;
+	mappy[3];
+	ss << mappy;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "{ 3:0,  1:3.3,  2:6.9 }");
+}
+
+TEST_F(MapTestFixture, using_strings)
+{
+	std::stringstream ss;
+	ss.str("");
+	ssuds::UnorderedMap<std::string, int> mappy;
+	mappy["cat"] = 2;
+	mappy["dog"] = 3;
+	mappy["horse"] = 6;
+	mappy["antalope"];
+	ss << mappy;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "{ cat:2,  dog:3,  horse:6,  antalope:0 }");
+}
+
+TEST_F(MapTestFixture, ostream)
+{
+	std::stringstream ss;
+	ss.str("");
+	ss << mappy;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "{ 3:0,  122:12.2,  9:22.01,  4:0,  2:6.9,  864:6.2,  22:1.2,  93:234.2,  152:12.2,  6:7.7,  1:5.3,  95:234.2 }");
+}
+#endif
+
+#if EXECUTE_GRAPH_TESTS
+class GraphTestFixture : public ::testing::Test
+{
+protected:
+	void SetUp() override
+	{
+		g.add_node(6);
+		g.add_node(2);
+		g.add_node(4);
+		g.add_node(1);
+		g.add_node(55);
+		g.add_node(45);
+		g.add_node(15);
+		g.add_edge(3.3f, 1, 2);
+		g.add_edge(3.1f, 1, 4);
+		g.add_edge(1.1f, 6, 2);
+		g.add_edge(3.5f, 6, 4);
+		g.add_edge(6.9f, 2, 4);
+		g.add_edge(234.1f, 1, 2);
+		g.add_edge(83.2f, 15, 45);
+	}
+
+	void TearDown() override
+	{
+
+	}
+
+
+	ssuds::Graph<int, float> g;
+};
+
+TEST_F(GraphTestFixture, addNode)
+{
+	ssuds::Graph<std::string, int> G;
+	G.add_node("cat");
+	G.add_node("dog");
+	G.add_node("fish");
+	std::stringstream ss;
+	ss.str("");
+	ss << G;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "cat || \ndog || \nfish || \n");
+
+}
+
+TEST_F(GraphTestFixture, addEdge)
+{
+	ssuds::Graph<std::string, int> G;
+	G.add_node("cat");
+	G.add_node("dog");
+	G.add_node("fish");
+	G.add_edge(2, "dog", "fish");
+	G.add_edge(7, "dog", "cat");
+	G.add_edge(11, "fish", "cat");
+	std::stringstream ss;
+	ss.str("");
+	ss << G;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "cat || \ndog || (cat: 7) (fish: 2) \nfish || (cat: 11) \n");
+}
+
+TEST_F(GraphTestFixture, hasEdgeTrue)
+{
+	EXPECT_TRUE(g.has_edge(1,2));
+	EXPECT_TRUE(g.has_edge(6,2));
+}
+
+
+TEST_F(GraphTestFixture, hasEdgeFalse)
+{
+	EXPECT_FALSE(g.has_edge(4,1));
+	EXPECT_FALSE(g.has_edge(6,1));
+	EXPECT_FALSE(g.has_edge(4, 2));
+}
+
+TEST_F(GraphTestFixture, ostream)
+{
+	std::stringstream ss;
+	ss.str("");
+	ss << g;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "1 || (2: 234.1) (4: 3.1) \n2 || (4: 6.9) \n4 || \n6 || (2: 1.1) (4: 3.5) \n15 || (45: 83.2) \n45 || \n55 || \n");
+}
+
+TEST_F(GraphTestFixture, removeNode)
+{
+	g.remove_node(15);
+	g.remove_node(1);
+	g.remove_node(6);
+	std::stringstream ss;
+	ss.str("");
+	ss << g;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "2 || (4: 6.9) \n4 || \n45 || \n55 || \n");
+}
+
+TEST_F(GraphTestFixture, removeEdge)
+{
+	g.remove_edge(1,234.1f);
+	g.remove_edge(6, 3.5f);
+	g.remove_edge(15,83.2f);
+	std::stringstream ss;
+	ss.str("");
+	ss << g;
+	std::string ss_captured_string = ss.str();
+	EXPECT_EQ(ss_captured_string, "1 || (2: 234.1) (4: 3.1) \n2 || (4: 6.9) \n4 || \n6 || (2: 1.1) (4: 3.5) \n15 || (45: 83.2) \n45 || \n55 || \n");
 }
 #endif
